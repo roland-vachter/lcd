@@ -58,13 +58,13 @@ module.exports = Lcd;
 
 // private
 Lcd.prototype.init = function () {
-  Q.delay(16)                                               // wait > 15ms
+  Q.delay(64)                                               // wait > 15ms
   .then(function () { this._write4Bits(0x03); }.bind(this)) // 1st wake up
-  .delay(6)                                                 // wait > 4.1ms
+  .delay(24)                                                 // wait > 4.1ms
   .then(function () { this._write4Bits(0x03); }.bind(this)) // 2nd wake up
-  .delay(2)                                                 // wait > 160us
+  .delay(8)                                                 // wait > 160us
   .then(function () { this._write4Bits(0x03); }.bind(this)) // 3rd wake up
-  .delay(2)                                                 // wait > 160us
+  .delay(8)                                                 // wait > 160us
   .then(function () {
     var displayFunction = 0x20;
 
@@ -84,7 +84,7 @@ Lcd.prototype.init = function () {
 
     this._command(0x01); // clear display (don't call clear to avoid event)
   }.bind(this))
-  .delay(3)             // wait > 1.52ms for display to clear
+  .delay(12)             // wait > 1.52ms for display to clear
   .then(function () { this.emit('ready'); }.bind(this));
 };
 
@@ -129,12 +129,12 @@ Lcd.prototype._printChar = function (str, index, cb) {
 
 Lcd.prototype.clear = function (cb) {
   // Wait > 1.52ms. There were issues waiting for 2ms so wait 3ms.
-  this._commandAndDelay(__COMMANDS.CLEAR_DISPLAY, 3, 'clear', cb);
+  this._commandAndDelay(__COMMANDS.CLEAR_DISPLAY, 12, 'clear', cb);
 };
 
 Lcd.prototype.home = function (cb) {
   // Wait > 1.52ms. There were issues waiting for 2ms so wait 3ms.
-  this._commandAndDelay(__COMMANDS.HOME, 3, 'home', cb);
+  this._commandAndDelay(__COMMANDS.HOME, 12, 'home', cb);
 };
 
 Lcd.prototype.setCursor = function (col, row) {
@@ -268,6 +268,11 @@ Lcd.prototype._write4Bits = function (val) {
   // writeSync takes ~10 microseconds to execute on the BBB, so there's
   // nothing special needed to wait 300 nanoseconds.
   this.e.writeSync(1);
+  this.e.writeSync(1);
+  this.e.writeSync(1);
+  this.e.writeSync(1);
+  this.e.writeSync(0);
+  this.e.writeSync(0);
+  this.e.writeSync(0);
   this.e.writeSync(0);
 };
-
